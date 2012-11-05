@@ -28,7 +28,7 @@ class RequestLoginCondition{
 	 * @param Request $request
 	 */
 	function after($request=null){
-		if($request->isVariable('url')) {
+		if($request && $request->isVariable('url')) {
 			Header::redirect($request->getVariable('url'));
 		}
 	}
