@@ -29,7 +29,14 @@ class RequestLoginCondition{
 	 */
 	function after($request=null){
 		if($request && $request->isVariable('url')) {
-			Header::redirect($request->getVariable('url'));
+			$url = $request->getVariable('url');
+			if($url != '') {
+				Header::redirect($url);
+			}
+			else {
+				Header::redirect(Rhaco::url());	
+			}
+			
 		}
 	}
 	
