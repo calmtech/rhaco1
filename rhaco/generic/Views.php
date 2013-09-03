@@ -266,7 +266,7 @@ class Views extends Flow{
 	 * @param unknown_type $filters
 	 * @return unknown
 	 */
-	function confirmedCreate($tableObject,$filterargs=array(),$filters=array()){
+	function confirmedCreate($tableObject,$filterargs=array(),$filters=array(),$usertemplatepath=null){
 		$title = Message::_("create");
 		$this->_addFitler($filters);
 
@@ -299,7 +299,12 @@ class Views extends Flow{
 			}
 			$this->setVariable(ObjectUtil::objectConvHash($object));
 			$this->setVariable("object",$tableObject);
-			$this->_setParser($tableObject,sprintf("generic/%s_".$template,strtolower(get_class($tableObject))),$template);
+			if(is_null($usertemplatepath)){
+				$this->_setParser($tableObject,sprintf("generic/%s_".$template,strtolower(get_class($tableObject))),$template);
+			}else{
+				$this->_setParser($tableObject,sprintf("%s/%s", $usertemplatepath, $template),$template);
+			}
+			
 		}else{
 			$this->_notFound();
 		}
