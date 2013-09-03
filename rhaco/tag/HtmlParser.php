@@ -155,6 +155,10 @@ class HtmlParser extends TemplateParser{
 								$obj->setAttribute($this->_check_selected($name,$value,"checked"),false);
 								break;
 							case "text":
+							case "email":
+							case "tel":
+							case "search":
+							case "url":
 							case "hidden":
 								$dateFormat = null;
 								if($obj->isParameter(TemplateParser::withNamespace("dateFormat"))){
