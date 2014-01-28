@@ -236,7 +236,9 @@ class DbUtilBase{
 
 		$columns = $tableObject->columns();
 		foreach($columns as $columnObject){
-			$value = $this->_sqlvalue($columnObject,TableObjectUtil::getter($tableObject,$columnObject));
+			$value = TableObjectUtil::getter($tableObject,$columnObject);
+			if(is_array($value)) $value = join(',', $value);
+			$value = $this->_sqlvalue($columnObject,$value);
 			if($columnObject->isSerial() && ($value === "NULL" || empty($value))){
 				$this->_insertSerial($columnObject,$columnString,$valueString,$tableString,$isserial);
 			}else if(!($value == "NULL" && TableObjectUtil::isTypeDate($columnObject))){
