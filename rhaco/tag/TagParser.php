@@ -6,7 +6,7 @@ Rhaco::import("network.Url");
 Rhaco::import("network.http.Http");
 Rhaco::import("tag.model.SimpleTag");
 Rhaco::import("io.FileUtil");
-Rhaco::import("io.Cache");
+Rhaco::import("io.CacheUtil");
 Rhaco::import("io.Snapshot");
 Rhaco::import("lang.StringUtil");
 Rhaco::import("lang.ArrayUtil");
@@ -16,7 +16,7 @@ Rhaco::import("lang.ObjectUtil");
 Rhaco::import("lang.Variable");
 /**
  * テンプレートをフォーマットする
- * 
+ *
  * @author Kazutaka Tokushima
  * @license New BSD License
  * @copyright Copyright 2005- rhaco project. All rights reserved.
@@ -26,7 +26,7 @@ class TagParser{
 	var $statics = array();
 	var $filename = "";
 	var $tmpurl = "";
-	
+
 	var $url = "";
 	var $path = "";
 	var $encodeType	= "UTF-8";
@@ -35,7 +35,7 @@ class TagParser{
 
 	/**
 	 * コンストラクタ
-	 * @param string $template テンプレートファイル 
+	 * @param string $template テンプレートファイル
 	 * @param string $path テンプレートパス
 	 * @param string $url テンプレートベースURL
 	 */
@@ -53,7 +53,7 @@ class TagParser{
 		Rhaco::constant("TEMPLATE_CACHE",true);
 		Rhaco::constant("TEMPLATE_CACHE_TIME",$cacheTime);
 		Rhaco::constant("CACHE_PATH",(empty($cachePath) ? Rhaco::path("work") : $cachePath));
-	}		
+	}
 	/**
 	 * エンコードタイプを設定する
 	 * @param string $encodeType
@@ -88,15 +88,15 @@ class TagParser{
 		$this->tmpurl = empty($remotePath) ? $this->url : $remotePath;
 		$rhaco_tag_parse_src = null;
 
-		if(!Variable::bool(Rhaco::constant("NOT_MAKE_CACHE")) && Variable::bool(Rhaco::constant("TEMPLATE_CACHE")) && 
-			!Cache::isExpiry($cacheurl,Rhaco::constant("TEMPLATE_CACHE_TIME",86400)) && (FileUtil::time($filename) < Cache::time($cacheurl))
+		if(!Variable::bool(Rhaco::constant("NOT_MAKE_CACHE")) && Variable::bool(Rhaco::constant("TEMPLATE_CACHE")) &&
+			!CacheUtil::isExpiry($cacheurl,Rhaco::constant("TEMPLATE_CACHE_TIME",86400)) && (FileUtil::time($filename) < CacheUtil::time($cacheurl))
 		){
-			$rhaco_tag_parse_src = Cache::execute($cacheurl,$variables);
+			$rhaco_tag_parse_src = CacheUtil::execute($cacheurl,$variables);
 		}else{
 			$rhaco_tag_parser_read_src = $this->_parse($this->_getTemplateSource($filename));
 			if(Variable::bool(Rhaco::constant("TEMPLATE_CACHE")) && !Variable::bool(Rhaco::constant("NOT_MAKE_CACHE"))){
-				Cache::set($cacheurl,$rhaco_tag_parser_read_src);
-				$rhaco_tag_parse_src = Cache::execute($cacheurl,$variables);
+				CacheUtil::set($cacheurl,$rhaco_tag_parser_read_src);
+				$rhaco_tag_parse_src = CacheUtil::execute($cacheurl,$variables);
 			}
 			if($rhaco_tag_parse_src === null){
 				$rhaco_snapshot = new Snapshot();
@@ -181,7 +181,7 @@ class TagParser{
 	}
 	function _callFilter($name,$src){
 		return ObjectUtil::calls($this->filters,$name,array($src,$this),0);
-	}	
+	}
 	function _parse($src){
 		$src = StringUtil::toULD($src);
 		$src = preg_replace("/([\w])\->/","\\1__PHP_ARROW__",$src);
@@ -190,7 +190,7 @@ class TagParser{
 		$src = $this->_callFilter("before",$src);
 		$src = $this->_call($src,"_exec");
 		$src = $this->_callFilter("after",$src);
-		$src = str_replace("__PHP_ARROW__","->",$src);		
+		$src = str_replace("__PHP_ARROW__","->",$src);
 		$src = $this->_parserPluralMessage($src);
 		$src = $this->_parsePrintVariable($src);
 		$src = $this->_parseMessage($src);
@@ -290,11 +290,11 @@ class TagParser{
 	function _parsePlainVariable($src){
 		while(true){
 			$array = $this->_matchVariable($src);
-			
+
 			if(sizeof($array) <= 0)	break;
 			foreach($array as $variable){
 				$variable_tmp = $variable;
-				
+
 				if(preg_match_all("/([\"\'])([^\\1]+)\\1/",$variable,$match)){
 					foreach($match[2] as $value){
 						$variable_tmp = str_replace($value,str_replace(".","__PERIOD__",$value),$variable_tmp);
@@ -319,7 +319,7 @@ class TagParser{
 
 			if($value == "") break;
 			if(substr_count($value,"}") > 1){
-				for($i=0,$start=0,$end=0;$i<strlen($value);$i++){			
+				for($i=0,$start=0,$end=0;$i<strlen($value);$i++){
 					if($value[$i] == "{"){
 						$start++;
 					}else if($value[$i] == "}"){
@@ -330,7 +330,7 @@ class TagParser{
 					}
 				}
 			}
-			$length	= strlen($value);			
+			$length	= strlen($value);
 			$src = substr($src,$position + $length);
 			$variableHash[sprintf("%03d_%s",$length,$value)] = $value;
 			unset($variables);

@@ -5,7 +5,7 @@ Rhaco::import("network.http.Browser");
 Rhaco::import("lang.ArrayUtil");
 /**
  * Restを返すAPIのベース
- * 
+ *
  * @author Kazutaka Tokushima
  * @license New BSD License
  * @copyright Copyright 2007- rhaco project. All rights reserved.
@@ -18,7 +18,7 @@ class ServiceRestAPIBase{
 		$this->browser = new Browser();
 		if(!empty($url)) $this->url = $url;
 	}
-	
+
 	/**
 	 * URLを生成する
 	 *
@@ -35,7 +35,7 @@ class ServiceRestAPIBase{
 		$query = TemplateFormatter::httpBuildQuery(array_merge(ArrayUtil::arrays($hash),ArrayUtil::arrays($addhash)));
 		return $this->url.$addurl.(empty($query) ? "" : "?").$query;
 	}
-	
+
 	/**
 	 * method GETを発行
 	 * iscacheの場合取得した結果をキャッシュする
@@ -51,15 +51,15 @@ class ServiceRestAPIBase{
 
 		if($iscache){
 			$eurl = base64_encode($url);
-			if(Cache::isExpiry($eurl)){
+			if(CacheUtil::isExpiry($eurl)){
 				$src = $this->browser->get($url);
-				Cache::set($eurl,$src);
+				CacheUtil::set($eurl,$src);
 			}
-			return Cache::get($eurl);
+			return CacheUtil::get($eurl);
 		}
 		return $this->browser->get($url);
 	}
-	
+
 	/**
 	 * method POSTを発行する
 	 *
@@ -71,7 +71,7 @@ class ServiceRestAPIBase{
 		$this->browser->setVariable($variables);
 		return $this->browser->post($this->buildUrl());
 	}
-	
+
 	/**
 	 * ベーシック認証
 	 *
