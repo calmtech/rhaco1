@@ -1,15 +1,15 @@
 <?php
-Rhaco::import("network.http.Request");
+Rhaco::import("network.http.RequestUtil");
 Rhaco::import("network.http.model.RequestLoginConditionFile");
 Rhaco::import("lang.Variable");
 /**
  * ログイン認証を追加したRequest
- * 
+ *
  * @author Kazutaka Tokushima
  * @license New BSD License
  * @copyright Copyright 2005- rhaco project. All rights reserved.
  */
-class RequestLogin extends Request{
+class RequestLogin extends RequestUtil{
 	/**
 	 * ログインする
 	 * @param RequestLoginCondition $requestLoginCondition
@@ -35,7 +35,7 @@ class RequestLogin extends Request{
 	 * @return boolean
 	 */
 	function silent($requestLoginCondition){
-		Request::usesession();
+		RequestUtil::usesession();
 		if(RequestLogin::isLogin()) return true;
 		$requestLoginCondition = (Variable::istype("RequestLoginCondition",$requestLoginCondition)) ? $requestLoginCondition : new RequestLoginConditionFile();
 		$request = new RequestLogin();
@@ -87,7 +87,7 @@ class RequestLogin extends Request{
 	 * @param Request $request
 	 */
 	function loginRequired($requestLoginCondition=null,$request=null){
-		Request::usesession();
+		RequestUtil::usesession();
 
 		if(!RequestLogin::isLogin()){
 			RequestLogin::login($requestLoginCondition,$request);
@@ -143,7 +143,7 @@ class RequestLogin extends Request{
 	 * @param string $value
 	 */
 	function setLoginCookie($value){
-		setcookie(RequestLogin::getSessionLoginName(),$value,time() + Rhaco::constant("COOKIE_EXPIRE_TIME",1209600));		
+		setcookie(RequestLogin::getSessionLoginName(),$value,time() + Rhaco::constant("COOKIE_EXPIRE_TIME",1209600));
 	}
 }
 ?>

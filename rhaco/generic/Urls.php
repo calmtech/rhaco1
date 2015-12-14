@@ -1,6 +1,6 @@
 <?php
 Rhaco::import("generic.Flow");
-Rhaco::import("network.http.Request");
+Rhaco::import("network.http.RequestUtil");
 Rhaco::import("lang.Variable");
 Rhaco::import("lang.ArrayUtil");
 Rhaco::import("exception.model.IllegalArgumentException");
@@ -24,7 +24,7 @@ class Urls{
 		$flow->setTemplate(Rhaco::rhacoresource("templates/generic/404.html"));
 		return $flow->parser();
 	}
-	
+
 	/**
 	 * 定義リストに基づきURLを解釈し実行する
 	 *
@@ -32,7 +32,7 @@ class Urls{
 	 * @return tag.TagParser
 	 */
 	function parser(){
-		$request = new Request();
+		$request = new RequestUtil();
 		$parser = null;
 		$url = substr($request->args,1);
 
