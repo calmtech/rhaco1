@@ -14,11 +14,11 @@ Rhaco::import("io.FileUtil");
  * @license New BSD License
  * @copyright Copyright 2005- rhaco project. All rights reserved.
  */
-class Request{
+class RequestUtil{
 	var $variables	= array();
-	var $session	= array();	
+	var $session	= array();
 	var $files		= array();
-	var $urlmaps	= array();	
+	var $urlmaps	= array();
 	var $post		= false;
 	var $args		= "";
 	var $filters = array();
@@ -28,13 +28,13 @@ class Request{
 	 * @param mixed ...
 	 * @return Request
 	 */
-	function Request(){
+	function RequestUtil(){
 		$args = func_get_args();
 		$this->__init__($args);
 	}
 	function __init__($args=null){
 		$args = ArrayUtil::arrays($args);
-		Request::usesession();
+		RequestUtil::usesession();
 		$this->variables = array();
 		$this->filters = array_merge($this->filters,ObjectUtil::loadObjects($args,array("reset","validate")));
 		$this->reset();
@@ -88,14 +88,14 @@ class Request{
 		}
 		if(isset($_GET) && is_array($_GET)){
 			foreach($_GET as $key => $get) $this->variables[$key] = StringUtil::getMagicQuotesOffValue($get);
-		}		
+		}
 		if(isset($_POST) && is_array($_POST) && sizeof($_POST) > 0){
 			$this->post = true;
 			foreach($_POST as $key => $post) $this->variables[$key] = StringUtil::getMagicQuotesOffValue($post);
 		}
 		// with cgi.fix_pathinfo = 1
 		$pathinfo = Rhaco::getVariable("RHACO_PATH_INFO");
-		$pathinfo = (empty($pathinfo) && array_key_exists("PATH_INFO",$_SERVER)) ? 
+		$pathinfo = (empty($pathinfo) && array_key_exists("PATH_INFO",$_SERVER)) ?
 			((empty($_SERVER["PATH_INFO"]) && array_key_exists("ORIG_PATH_INFO",$_SERVER)) ? $_SERVER["ORIG_PATH_INFO"] : $_SERVER["PATH_INFO"]) : $pathinfo;
 		if(empty($pathinfo) && isset($this->variables["pathinfo"])) $pathinfo = $this->variables["pathinfo"];
 		if(!empty($pathinfo) && $pathinfo[0] != "/") $pathinfo = "/".$pathinfo;
@@ -181,7 +181,7 @@ class Request{
 	function isSession($name){
 		return array_key_exists($name,$this->session);
 	}
-	
+
 	/**
 	 * セッションから変数を取得
 	 * @param string $name
@@ -335,12 +335,12 @@ class Request{
 	function toQuery($list=array()){
 		/***
 		 * $list = array("hoge"=>123,"rhaco"=>"lib");
-		 * $req = new Request();
+		 * $req = new RequestUtil();
 		 * $req->clearVariable();
-		 * 
+		 *
 		 * $req->setVariable($list);
 		 * eq("?hoge=123&rhaco=lib",$req->toQuery());
-		 */		
+		 */
 		$query = TemplateFormatter::httpBuildQuery($this->getVariable(),$list);
 		if(!empty($query)) $query = "?".$query;
 		return $query;

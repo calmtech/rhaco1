@@ -20,7 +20,7 @@ class SetupCli{
 	var $rhacopath;
 
 	function SetupCli($projectModel,$rhacopath){
-		Logger::disableDisplay();		
+		Logger::disableDisplay();
 		$this->projectModel = $projectModel;
 		$this->rhacopath = $rhacopath;
 		$multi = 0;
@@ -55,8 +55,8 @@ class SetupCli{
 				}else{
 					$check = preg_replace("/([\"\']).+?\\1/","",$in);
 					$multi = $multi + substr_count($check,"{") - substr_count($check,"}");
-					$store .= $in;	
-				
+					$store .= $in;
+
 					if($multi == 0){
 						if(trim($store) != ""){
 							ob_start();
@@ -79,7 +79,7 @@ class SetupCli{
 		}
 		Rhaco::end();
 	}
-	
+
 	function _ls($path){
 		foreach(FileUtil::ls($path) as $file){
 			print($file->getFullname()."\n");
@@ -97,7 +97,7 @@ class SetupCli{
 	}
 	function _doc($path){
 		$method = "";
-		
+
 		if(strpos($path,"::") !== false){
 			list($path,$method) = explode("::",$path);
 		}
@@ -128,16 +128,16 @@ class SetupCli{
 					}
 					print("description:\n\t".str_replace("\n","\n\t",$d->description));
 					print("\n");
-		
+
 					print("functions:\n");
 					foreach($d->function as $f){
 						print("\t".$f->name."\n");
-					}				
+					}
 				}
 			}
 		}else{
 			$func = str_replace("_","-",strtolower($path));
-			
+
 			$result = array();
 			$body = Http::body("http://jp2.php.net/manual/ja/function.".$func.".php");
 			if(SimpleTag::setof($tag,$body,"body")){
@@ -149,13 +149,13 @@ class SetupCli{
 									if($d->param("id") == "function.".$func){
 										$result["verinfo"] = $d->f("div[0].p[0].value()");
 										$result["refpurpose"] = $d->f("div[0].p[1].value()");
-					
+
 										$description = $d->f("div[1]");
 										$description->f("h3.save()",null);
 										$result["desc"] = trim(strip_tags($description->getValue()));
 										$result["desc"] = preg_replace("/\n[\s]*\n/","\n\n",$result["desc"]);
 										$result["desc"] = str_replace(array("\n\n","\n","__ENTER__"),array("__ENTER__","","\n"),$result["desc"]);
-										
+
 										print("verinfo:\n\t".$result["verinfo"]."\n");
 										print("\n");
 										print("refpurpose:\n\t".$result["refpurpose"]."\n");
@@ -172,17 +172,17 @@ class SetupCli{
 			if(empty($result)) print("undefined\n");
 		}
 	}
-	
+
 	function _create($dbname){
 		print((($this->projectModel->createTable($dbname)) ? "creata table ".$dbname : "failure")."\n");
 	}
-	
+
 	function _generate(){
-		$request = new Request();
+		$request = new RequestUtil();
 		$request->setVariable("rhacopath",$this->rhacopath);
 		print((($this->projectModel->generate($request)) ? "setting completion" : "failure")."\n");
 	}
-	
+
 	function _init(){
 		print((($projectModel->appInit()) ? "initializing of project is executed" : "failure")."\n");
 	}

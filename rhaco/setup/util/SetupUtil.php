@@ -1,10 +1,10 @@
 <?php
-Rhaco::import("network.http.Request");
+Rhaco::import("network.http.RequestUtil");
 Rhaco::import("network.http.Header");
 Rhaco::import("io.FileUtil");
 /**
  * SetupUtil
- * 
+ *
  * セットアップで使用するユーティリティ
  * @author Kazutaka Tokushima
  * @license New BSD License
