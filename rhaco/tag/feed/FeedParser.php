@@ -6,12 +6,12 @@ Rhaco::import("network.Url");
 Rhaco::import("network.http.Http");
 Rhaco::import("tag.model.SimpleTag");
 Rhaco::import("io.model.File");
-Rhaco::import("io.Cache");
+Rhaco::import("io.CacheUtil");
 Rhaco::import("util.Logger");
 Rhaco::import("io.FileUtil");
 /**
  * Feed解析クラス
- * 
+ *
  * @author Kazutaka Tokushima
  * @license New BSD License
  * @copyright Copyright 2006- rhaco project. All rights reserved.
@@ -37,7 +37,7 @@ class FeedParser{
 		Logger::deep_debug("FeedParser cache on");
 		Rhaco::setVariable("FEED_CACHE_OFF",false);
 	}
-	
+
 	/**
 	 * 一時的にキャッシュを無効にする
 	 */
@@ -45,7 +45,7 @@ class FeedParser{
 		Logger::deep_debug("FeedParser cache off");
 		Rhaco::setVariable("FEED_CACHE_OFF",true);
 	}
-	
+
 	/**
 	 * URLからFeedを取得しRSS20として取得
 	 *
@@ -58,22 +58,22 @@ class FeedParser{
 		/*** unit("tag.feed.FeedParserTest"); */
 		Rhaco::getVariable("FEED_CACHE_OFF",false);
 		if(
-			Rhaco::getVariable("FEED_CACHE_OFF") 
-			|| !Rhaco::constant("FEED_CACHE") 
+			Rhaco::getVariable("FEED_CACHE_OFF")
+			|| !Rhaco::constant("FEED_CACHE")
 			|| (
-					Rhaco::constant("FEED_CACHE_TIME") > 0 
-					&& Cache::isExpiry($url,Rhaco::constant("FEED_CACHE_TIME"))
+					Rhaco::constant("FEED_CACHE_TIME") > 0
+					&& CacheUtil::isExpiry($url,Rhaco::constant("FEED_CACHE_TIME"))
 				)
 		){
 			$src = (preg_match("/[\w]+:\/\/[\w]+/",$url)) ? (($time > 0) ? Http::modified($url,$time) : Http::body($url,"GET",$headers)) : FileUtil::read($url);
-			if(!Rhaco::getVariable("FEED_CACHE_OFF") && Rhaco::constant("FEED_CACHE")) Cache::set($url,$src);
+			if(!Rhaco::getVariable("FEED_CACHE_OFF") && Rhaco::constant("FEED_CACHE")) CacheUtil::set($url,$src);
 		}else{
-			$src = Cache::get($url);
+			$src = CacheUtil::get($url);
 		}
 		Logger::deep_debug(Message::_("read feed [{1}]",$url));
 		return FeedParser::parse(StringUtil::encode($src),$url,$time);
 	}
-	
+
 	/**
 	 * URLからFeedを取得しRssItemをまとめたものを取得
 	 *
@@ -86,7 +86,7 @@ class FeedParser{
 		/*** unit("tag.feed.FeedParserTest"); */
 		$list = array();
 		if(is_string($urls)) $urls = explode("\n",StringUtil::toULD($urls));
-		
+
 		foreach(ArrayUtil::arrays($urls) as $url){
 			$url = trim($url);
 			if(!empty($url)){
@@ -99,7 +99,7 @@ class FeedParser{
 		krsort($list);
 		return $list;
 	}
-	
+
 	/**
 	 * 文字列からtag.feed.Rss20にセットする
 	 *
@@ -124,14 +124,14 @@ class FeedParser{
 			$channel	= $fromFeed->getChannel();
 			$toFeed->setChannel($channel->getTitle(),$channel->getDescription(),$channel->getLink());
 			foreach($fromFeed->getItem() as $item){
-				$toItem	= new RssItem20($item->getTitle(),$item->getDescription(),$item->getLink());				
+				$toItem	= new RssItem20($item->getTitle(),$item->getDescription(),$item->getLink());
 				$toItem->setPubDate($item->getDate());
 				$toItem->setAuthor($item->getCreator());
 				$toFeed->setItem($toItem);
 			}
 			return $toFeed;
 		}
-		
+
 		Rhaco::import("tag.feed.Rss09");
 		$fromFeed = new Rss09();
 		if($fromFeed->set($src)){
@@ -148,7 +148,7 @@ class FeedParser{
 		if($fromFeed->set($src)){
 			$toFeed->setChannel($fromFeed->getTitle(),$fromFeed->getSubTitle(),$fromFeed->getLinkHref());
 			foreach($fromFeed->getEntry() as $item){
-				$author = $item->getAuthor();				
+				$author = $item->getAuthor();
 				$content = $item->getContentValue();
 				if(empty($content)) $content = $item->getSummaryValue();
 				$toItem	= new RssItem20($item->getTitle(),$content,$item->getLinkHref());
@@ -160,13 +160,13 @@ class FeedParser{
 			}
 			return $toFeed;
 		}
-		
+
 		Rhaco::import("tag.feed.Atom03");
 		$fromFeed = new Atom03();
 		if($fromFeed->set($src)){
 			$toFeed->setChannel($fromFeed->getTitle(),$fromFeed->getTitle(),$fromFeed->getLink());
 			foreach($fromFeed->getEntry() as $item){
-				$author = $item->getAuthor();				
+				$author = $item->getAuthor();
 				$content = $item->getContentValue();
 				if(empty($content)) $content = $item->getSummaryValue();
 				$toItem	= new RssItem20($item->getTitle(),$content,$item->getLinkHref());
@@ -198,17 +198,17 @@ class FeedParser{
 		$fromFeed = new NetscapeBookmark();
 		if($fromFeed->set($src)){
 			foreach($fromFeed->getItems() as $item){
-				$toItem	= new RssItem20($item->getTitle(),$item->getTags(),$item->getLink());				
+				$toItem	= new RssItem20($item->getTitle(),$item->getTags(),$item->getLink());
 				$toItem->setPubDate($item->getCreated());
-				$toItem->setComments($item->getDescription());				
-				$toItem->setCategory($item->getTags());				
+				$toItem->setComments($item->getDescription());
+				$toItem->setCategory($item->getTags());
 				$toFeed->setItem($toItem);
 			}
 			return $toFeed;
 		}
 		return new Rss20();
 	}
-	
+
 	/**
 	 * URLまたは文字列からFeed URLを取得する
 	 *
@@ -230,9 +230,9 @@ class FeedParser{
 		 * </body>
 		 * </html>
 		 * __HTML__;
-		 * 
+		 *
 		 * eq("http://rhaco.org/rss",FeedParser::alternateUrl("http://rhaco.org/",$html));
-		 * 
+		 *
 		 */
 		$src = empty($src) ? Http::body($baseurl,"GET",$headers) : $src;
 		if(SimpleTag::setof($tag,$src,"head")){

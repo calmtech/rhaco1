@@ -235,7 +235,7 @@ class Views extends Flow{
 	 * @param unknown_type $filters
 	 * @return unknown
 	 */
-	function create($tableObject,$filterargs=array(),$filters=array()){
+	function create($tableObject,$filterargs=array(),$filters=array(),$usertemplatepath=null){
 		$this->_addFitler($filters);
 		if($this->_connection($tableObject)){
 			$object = null;
@@ -249,7 +249,11 @@ class Views extends Flow{
 			}
 			$this->setVariable(ObjectUtil::objectConvHash($object));
 			$this->setVariable("object",$tableObject);
-			$this->_setParser($tableObject,sprintf("generic/%s_form.html",strtolower(get_class($tableObject))),"form.html");
+			if(is_null($usertemplatepath)){
+				$this->_setParser($tableObject,sprintf("generic/%s_form.html",strtolower(get_class($tableObject))),"form.html");
+			}else{
+				$this->_setParser($tableObject,sprintf("%s/form.html", $usertemplatepath),"form.html");
+			}
 		}else{
 			$this->_notFound();
 		}
@@ -304,7 +308,7 @@ class Views extends Flow{
 			}else{
 				$this->_setParser($tableObject,sprintf("%s/%s", $usertemplatepath, $template),$template);
 			}
-			
+
 		}else{
 			$this->_notFound();
 		}
